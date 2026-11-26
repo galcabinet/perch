@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perch. Your pull requests, from above.</title>
+<meta name="description" content="One quiet Mac window for every pull request, every review round and every local server. Free for macOS. It talks through the CLIs you already use.">
+<meta name="theme-color" content="#09090a">
+<meta name="color-scheme" content="dark">
+<meta property="og:title" content="Perch. Your pull requests, from above.">
+<meta property="og:description" content="One quiet Mac window for every pull request, every review round and every local server. Free for macOS.">
+<meta property="og:image" content="https://galcabinet.github.io/perch/assets/og.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500&family=Geist:wght@300;400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090a;
+    --ink: #f6f6f7;
+    --dim: rgba(246, 246, 247, .56);
+    --faint: rgba(246, 246, 247, .32);
+    --line: rgba(246, 246, 247, .13);
+    --panel: rgba(255, 255, 255, .035);
+    --green: #34c778;
+    --amber: #f5be32;
+    --red: #ee605a;
+    --display: "Unbounded", "Geist", system-ui, sans-serif;
+    --body: "Geist", -apple-system, system-ui, sans-serif;
+    --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --edge: clamp(20px, 5vw, 72px);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 400 17px/1.55 var(--body);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; height: auto; }
+  ::selection { background: var(--ink); color: var(--bg); }
+
+  /* ---------- nav ---------- */
+  nav {
+    position: fixed; inset: 0 0 auto 0; z-index: 20;
+    display: flex; align-items: center; gap: 28px;
+    height: 64px; padding: 0 var(--edge);
+    background: rgba(9, 9, 10, .62);
+    -webkit-backdrop-filter: saturate(160%) blur(22px); backdrop-filter: saturate(160%) blur(22px);
+    border-bottom: 1px solid transparent; transition: border-color .3s;
+  }
+  nav.scrolled { border-bottom-color: var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; font: 400 15px var(--display); letter-spacing: -.01em; }
+  .brand img { width: 30px; height: 30px; }
+  nav .links { display: flex; gap: 26px; margin-left: auto; font-size: 14px; color: var(--dim); }
+  nav .links a { transition: color .2s; }
+  nav .links a:hover { color: var(--ink); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 9px;
+    height: 36px; padding: 0 16px; border-radius: 999px;
+    background: var(--ink); color: var(--bg); font: 500 14px var(--body);
+    transition: transform .2s cubic-bezier(.2, .8, .2, 1), background .2s;
+  }
+  .pill:hover { transform: translateY(-1px); background: #fff; }
+  .pill:active { transform: scale(.97); }
+  .pill.big { height: 56px; padding: 0 28px; font-size: 17px; }
+  .pill svg { width: 15px; height: 15px; }
+  .pill.big svg { width: 18px; height: 18px; margin-top: -2px; }
+  @media (max-width: 760px) { nav .links { display: none; } nav .pill { margin-left: auto; } }
+
+  /* ---------- the perch: one line, three dots ---------- */
+  .perch { position: relative; height: 1px; background: var(--line); margin: 0 calc(var(--edge) * -1); }
+  .perch i {
+    position: absolute; bottom: 1px; width: var(--d, 22px); height: var(--d, 22px); border-radius: 50%;
+    background: var(--c); transform-origin: 50% 100%;
+  }
+  .hero .perch { margin-top: clamp(22px, 3.4vw, 46px); --d: clamp(18px, 2.6vw, 34px); }
+  .hero .perch i { right: calc(var(--edge) + var(--n) * var(--d) * 1.42); animation: land 1.05s cubic-bezier(.3, 1.4, .5, 1) both; animation-delay: calc(.35s + (2 - var(--n)) * .13s); }
+  @keyframes land {
+    0% { transform: translateY(-260px) scale(.9); opacity: 0; }
+    55% { opacity: 1; transform: translateY(0) scale(1.12, .84); }
+    78% { transform: translateY(-9px) scale(.97, 1.04); }
+    100% { transform: translateY(0) scale(1); }
+  }
+
+  /* ---------- hero ---------- */
+  .hero { position: relative; padding: clamp(128px, 19vh, 210px) var(--edge) 0; }
+  .eyebrow { font: 400 12.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+  h1, h2 { font-family: var(--display); font-weight: 300; letter-spacing: -.045em; line-height: .98; text-wrap: balance; }
+  h1 { font-size: clamp(46px, 10.4vw, 168px); margin-top: 22px; }
+  h1 em, h2 em { font-style: normal; color: var(--faint); }
+  .hero-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 26px 40px; padding: clamp(26px, 3.6vw, 44px) 0 0; }
+  .lede { max-width: 30em; font-size: clamp(17px, 1.55vw, 21px); line-height: 1.5; color: var(--dim); }
+  .lede b { font-weight: 400; color: var(--ink); }
+  .cta { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .meta { font: 400 12.5px var(--mono); color: var(--faint); letter-spacing: .02em; }
+
+  /* ---------- the app window ---------- */
+  .stage { position: relative; margin: clamp(56px, 8vw, 110px) auto 0; width: min(680px, 100%); }
+  .glow { position: absolute; inset: -18% -46%; z-index: -1; filter: blur(90px); opacity: .5; pointer-events: none;
+    background:
+      radial-gradient(38% 42% at 22% 38%, var(--green), transparent 70%),
+      radial-gradient(34% 40% at 52% 70%, var(--amber), transparent 70%),
+      radial-gradient(38% 44% at 80% 34%, var(--red), transparent 70%);
+  }
+  .window {
+    position: relative; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .13), 0 40px 120px -20px rgba(0, 0, 0, .9), 0 12px 30px rgba(0, 0, 0, .5);
+    background: #282828;
+  }
+  .window::before { /* the window's three buttons */
+    content: ""; position: absolute; top: 14px; left: 14px; width: 12px; height: 12px; border-radius: 50%;
+    background: #ff5f57; box-shadow: 20px 0 0 #febc2e, 40px 0 0 #28c840;
+  }
+
+  /* ---------- sections ---------- */
+  section { padding: clamp(96px, 14vw, 190px) var(--edge) 0; }
+  .tag { display: inline-flex; align-items: center; gap: 12px; font: 400 12.5px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+  .tag::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+  h2 { font-size: clamp(36px, 6.4vw, 100px); margin-top: 20px; max-width: 13em; }
+  .split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: clamp(36px, 6vw, 96px); align-items: center; margin-top: clamp(40px, 6vw, 84px); }
+  .split.flip > :first-child { order: 2; }
+  .copy p { color: var(--dim); max-width: 27em; font-size: clamp(17px, 1.35vw, 19px); }
+  .copy p + p { margin-top: 1em; }
+  .copy p b { color: var(--ink); font-weight: 400; }
+  .shot { border-radius: 16px; overflow: hidden; box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 30px 80px -24px rgba(0, 0, 0, .9); background: #282828; padding: 10px; }
+  .shot img { border-radius: 10px; width: 100%; }
+  @media (max-width: 880px) { .split { grid-template-columns: 1fr; } .split.flip > :first-child { order: 0; } }
+
+  /* the legend: what each color means */
+  .legend { margin-top: 30px; display: grid; gap: 0; border-top: 1px solid var(--line); max-width: 27em; }
+  .legend div { display: grid; grid-template-columns: 26px 6.4em 1fr; align-items: baseline; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 15.5px; }
+  .legend div::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--c); transform: translateY(-1px); }
+  .legend span { color: var(--dim); }
+
+  /* review rounds, drawn */
+  .rounds { border-top: 1px solid var(--line); }
+  .round { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 24px; padding: clamp(20px, 2.6vw, 30px) 0; border-bottom: 1px solid var(--line); }
+  .round .t { font-size: clamp(16px, 1.5vw, 20px); }
+  .round .t small { display: block; font-size: 14px; color: var(--dim); margin-top: 3px; }
+  .dots { display: flex; align-items: flex-end; gap: 18px; }
+  .dots b { display: grid; justify-items: center; gap: 7px; font: 400 11px var(--mono); color: var(--faint); }
+  .dots b::before { content: ""; width: 12px; height: 12px; border-radius: 50%; background: var(--c); opacity: .5; }
+  .dots b.now::before { width: 20px; height: 20px; opacity: 1; }
+  .dots b.open::before { background: none; box-shadow: inset 0 0 0 2px var(--dim); width: 20px; height: 20px; opacity: 1; }
+
+  /* one click */
+  .acts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: clamp(40px, 6vw, 84px); border-top: 1px solid var(--line); }
+  .acts div { padding: 26px 22px 30px 0; border-right: 1px solid var(--line); }
+  .acts div + div { padding-left: 22px; }
+  .acts div:last-child { border-right: 0; }
+  .acts h3 { font: 400 clamp(18px, 1.7vw, 23px) var(--display); letter-spacing: -.03em; }
+  .acts p { margin-top: 10px; color: var(--dim); font-size: 15.5px; }
+  .acts kbd { display: block; margin-bottom: 22px; font: 400 12px var(--mono); color: var(--faint); }
+  @media (max-width: 880px) { .acts { grid-template-columns: 1fr 1fr; } .acts div { border-bottom: 1px solid var(--line); } .acts div:nth-child(2) { border-right: 0; } .acts div:nth-child(3) { padding-left: 0; } }
+  @media (max-width: 520px) { .acts { grid-template-columns: 1fr; } .acts div { border-right: 0; padding-left: 0 !important; } }
+
+  /* connect */
+  .cli { margin-top: clamp(40px, 6vw, 84px); border-top: 1px solid var(--line); }
+  .cli > div { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(0, 4fr); gap: 16px 40px; align-items: baseline; padding: clamp(22px, 3vw, 34px) 0; border-bottom: 1px solid var(--line); }
+  .cli h3 { font: 400 clamp(20px, 2.2vw, 30px) var(--display); letter-spacing: -.035em; display: flex; align-items: center; gap: 14px; }
+  .cli h3::before { content: ""; flex: none; width: 11px; height: 11px; border-radius: 50%; background: var(--c); }
+  .cli p { color: var(--dim); font-size: 16.5px; }
+  .cli p b { color: var(--ink); font-weight: 400; }
+  .cli code { justify-self: end; font: 400 13px var(--mono); color: var(--dim); white-space: nowrap; }
+  .cli code span { color: var(--faint); }
+  @media (max-width: 880px) { .cli > div { grid-template-columns: 1fr; } .cli code { justify-self: start; } }
+  .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px; margin-top: clamp(56px, 8vw, 110px); }
+  .facts strong { display: block; font: 300 clamp(40px, 6vw, 92px)/1 var(--display); letter-spacing: -.05em; }
+  .facts strong small { font-size: .36em; letter-spacing: 0; }
+  .facts span { display: block; margin-top: 12px; color: var(--dim); font-size: 15.5px; max-width: 16em; }
+  @media (max-width: 620px) { .facts { grid-template-columns: 1fr; } }
+
+  /* download */
+  .get { text-align: center; padding-bottom: clamp(90px, 12vw, 160px); }
+  .get img.mark { width: clamp(96px, 12vw, 148px); margin: 0 auto 30px; filter: drop-shadow(0 30px 50px rgba(0, 0, 0, .7)); }
+  .get h2 { margin: 0 auto; }
+  .get .cta { justify-content: center; margin-top: 38px; flex-direction: column; gap: 14px; }
+  .term {
+    margin: 46px auto 0; width: min(720px, 100%); text-align: left; border-radius: 14px; background: var(--panel);
+    box-shadow: inset 0 0 0 1px var(--line); padding: 16px 16px 16px 20px; display: flex; align-items: center; gap: 14px;
+  }
+  .term code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 400 13.5px var(--mono); color: var(--ink); scrollbar-width: none; }
+  .term code::before { content: "$ "; color: var(--faint); }
+  .term button { flex: none; height: 32px; padding: 0 13px; border: 0; border-radius: 8px; background: rgba(255, 255, 255, .09); color: var(--ink); font: 500 13px var(--body); cursor: pointer; transition: background .2s; }
+  .term button:hover { background: rgba(255, 255, 255, .16); }
+  .small { margin: 18px auto 0; max-width: 42em; font-size: 14px; color: var(--faint); }
+
+  footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 26px var(--edge) 34px; border-top: 1px solid var(--line); font: 400 12.5px var(--mono); color: var(--faint); }
+
+  /* arrive on scroll */
+  .rise { opacity: 0; transform: translateY(26px); transition: opacity .9s cubic-bezier(.2, .7, .2, 1), transform .9s cubic-bezier(.2, .7, .2, 1); }
+  .rise.in { opacity: 1; transform: none; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .rise { opacity: 1; transform: none; transition: none; }
+    .hero .perch i { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a class="brand" href="#top"><img src="assets/icon.png" alt="">Perch</a>
+  <div class="links">
+    <a href="#see">See</a>
+    <a href="#rounds">Reviews</a>
+    <a href="#act">Act</a>
+    <a href="#run">Run</a>
+    <a href="#connect">Connect</a>
+  </div>
+  <a class="pill" href="#download">Download</a>
+</nav>
+
+<header class="hero" id="top">
+  <p class="eyebrow">A small app for macOS</p>
+  <h1>Your pull requests, <em>from above.</em></h1>
+  <div class="perch" aria-hidden="true">
+    <i style="--n:2;--c:var(--green)"></i><i style="--n:1;--c:var(--amber)"></i><i style="--n:0;--c:var(--red)"></i>
+  </div>
+  <div class="hero-foot">
+    <p class="lede"><b>One quiet window</b> for every pull request, every review round and every local server. It sits in your Dock and tells you what is ready, what is waiting, and what needs you.</p>
+    <div class="cta">
+      <a class="pill big" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 12.54c-.03-2.78 2.27-4.12 2.37-4.18-1.29-1.89-3.3-2.15-4.02-2.18-1.71-.17-3.34 1.01-4.2 1.01-.87 0-2.2-.98-3.62-.96-1.86.03-3.58 1.08-4.54 2.75-1.94 3.36-.5 8.33 1.39 11.06.92 1.33 2.02 2.83 3.47 2.78 1.39-.06 1.92-.9 3.6-.9 1.68 0 2.15.9 3.62.87 1.5-.03 2.44-1.36 3.36-2.7 1.06-1.55 1.5-3.05 1.52-3.13-.03-.01-2.92-1.12-2.95-4.43zM14.3 4.4c.77-.93 1.28-2.22 1.14-3.5-1.1.04-2.44.73-3.23 1.66-.71.82-1.33 2.13-1.16 3.39 1.23.1 2.48-.62 3.25-1.55z"/></svg>
+        Download for Mac
+      </a>
+      <span class="meta">Free · macOS 14+ · 1.2 MB</span>
+    </div>
+  </div>
+  <div class="stage rise">
+    <div class="glow"></div>
+    <div class="window"><img src="assets/app.png" width="1360" height="1760" alt="The Perch window: two local projects on top, then pull requests grouped into stacks, each with a colored status dot and a row of review dots."></div>
+  </div>
+</header>
+
+<section id="see">
+  <span class="tag" style="--c:var(--green)">01 · See</span>
+  <h2 class="rise">A tree, <em>not a list.</em></h2>
+  <div class="split">
+    <div class="copy rise">
+      <p><b>Stacks stay in order.</b> Number one lands first, and the line down the side shows what depends on what.</p>
+      <p>Loose pull requests that belong together are grouped and given a short name, so twenty rows read like five ideas.</p>
+      <div class="legend">
+        <div style="--c:var(--green)">Green<span>Approved. Merge it.</span></div>
+        <div style="--c:var(--amber)">Yellow<span>Nothing left for you. The reviewer decides.</span></div>
+        <div style="--c:var(--red)">Red<span>The reviewer asked you for a change.</span></div>
+      </div>
+    </div>
+    <div class="shot rise"><img src="assets/stack.png" width="1320" height="512" alt="A stack of four pull requests in order, numbered one to four, colored green, green, yellow and red."></div>
+  </div>
+</section>
+
+<section id="rounds">
+  <span class="tag" style="--c:var(--amber)">02 · Reviews</span>
+  <h2 class="rise">Whose turn <em>is it?</em></h2>
+  <div class="split flip">
+    <div class="rounds rise" aria-label="Three pull requests with their review rounds">
+      <div class="round"><div class="t">Queue edits while offline<small>Approved on the third round</small></div>
+        <div class="dots"><b style="--c:var(--red)">1d</b><b style="--c:var(--amber)">20h</b><b class="now" style="--c:var(--green)">4h</b></div></div>
+      <div class="round"><div class="t">Merge edits when back online<small>Reviewer signs off on the size</small></div>
+        <div class="dots"><b style="--c:var(--red)">22h</b><b class="now" style="--c:var(--amber)">3h</b></div></div>
+      <div class="round"><div class="t">Recover an account with a passkey<small>Updated 1h ago, needs a new review</small></div>
+        <div class="dots"><b style="--c:var(--red)">1d</b><b class="open">1h</b></div></div>
+    </div>
+    <div class="copy rise">
+      <p><b>Every review is a dot.</b> Oldest on the left, with how long ago it was. The last one is the answer.</p>
+      <p>Push a fix and a ring appears: changed, not reviewed yet. When the review comes in, the ring fills with its color.</p>
+      <p>Claude reads what the reviewer wrote and tells yellow from red, in nine words or fewer. "Changes requested" stops meaning two different things.</p>
+    </div>
+  </div>
+</section>
+
+<section id="act">
+  <span class="tag" style="--c:var(--red)">03 · Act</span>
+  <h2 class="rise">One click. <em>Then back to work.</em></h2>
+  <div class="acts rise">
+    <div><kbd>click a row</kbd><h3>Open</h3><p>The pull request, in your browser, on the first click. Even when Perch is not the app in front.</p></div>
+    <div><kbd>paper plane</kbd><h3>Send</h3><p>The link goes to your Slack channel, as you, through the Slack app. No bot, no token.</p></div>
+    <div><kbd>merge</kbd><h3>Merge</h3><p>Squash and merge an approved pull request. Then confetti, across your whole screen.</p></div>
+    <div><kbd>fix clash</kbd><h3>Unblock</h3><p>When only the changelog conflicts, one click keeps both sides and pushes.</p></div>
+  </div>
+</section>
+
+<section id="run">
+  <span class="tag" style="--c:var(--green)">04 · Run</span>
+  <h2 class="rise">Know what is <em>running.</em></h2>
+  <div class="split">
+    <div class="copy rise">
+      <p><b>Add any folders.</b> Each one gets a run button with the command you choose. Perch guesses it from what is in the folder.</p>
+      <p>It asks macOS what is listening, so it sees every dev server in those folders and their worktrees, whoever started it: you, a script, or an agent. Port, branch, open, stop.</p>
+    </div>
+    <div class="shot rise"><img src="assets/runs.png" width="1320" height="240" alt="Two project cards. The first shows three running branches with their ports and stop buttons. The second shows a run button."></div>
+  </div>
+</section>
+
+<section id="connect">
+  <span class="tag" style="--c:var(--amber)">05 · Connect</span>
+  <h2 class="rise">Your CLIs <em>do the talking.</em></h2>
+  <div class="cli rise">
+    <div style="--c:var(--green)"><h3>GitHub CLI</h3><p>Reads your pull requests and merges them. If <b>gh</b> works in your terminal, Perch works.</p><code><span>$</span> gh auth login</code></div>
+    <div style="--c:var(--amber)"><h3>Claude Code</h3><p>Reads each review and names your groups, with the fast model. Optional. Without it, a reviewed pull request stays grey until it is approved.</p><code><span>$</span> claude</code></div>
+    <div style="--c:var(--red)"><h3>Slack</h3><p>Sends links through the Slack app already on your Mac. Optional. macOS asks once for permission.</p><code>no setup</code></div>
+  </div>
+  <div class="facts rise">
+    <div><strong>0</strong><span>Accounts to create. Perch has no server. It reaches GitHub, Claude and Slack through what is already on your Mac.</span></div>
+    <div><strong>0%</strong><span>Processor use while the window is hidden. It only looks when you look.</span></div>
+    <div><strong>1.2<small> MB</small></strong><span>To download. A native Mac app, with no browser inside.</span></div>
+  </div>
+</section>
+
+<section class="get" id="download">
+  <img class="mark rise" src="assets/icon.png" width="512" height="512" alt="The Perch icon: three dots sitting on a line.">
+  <h2 class="rise">Take a <em>seat.</em></h2>
+  <div class="cta rise">
+    <a class="pill big" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.05 12.54c-.03-2.78 2.27-4.12 2.37-4.18-1.29-1.89-3.3-2.15-4.02-2.18-1.71-.17-3.34 1.01-4.2 1.01-.87 0-2.2-.98-3.62-.96-1.86.03-3.58 1.08-4.54 2.75-1.94 3.36-.5 8.33 1.39 11.06.92 1.33 2.02 2.83 3.47 2.78 1.39-.06 1.92-.9 3.6-.9 1.68 0 2.15.9 3.62.87 1.5-.03 2.44-1.36 3.36-2.7 1.06-1.55 1.5-3.05 1.52-3.13-.03-.01-2.92-1.12-2.95-4.43zM14.3 4.4c.77-.93 1.28-2.22 1.14-3.5-1.1.04-2.44.73-3.23 1.66-.71.82-1.33 2.13-1.16 3.39 1.23.1 2.48-.62 3.25-1.55z"/></svg>
+      Download for Mac
+    </a>
+    <span class="meta">Free · macOS 14 or later · Apple silicon and Intel</span>
+  </div>
+  <div class="term rise">
+    <code id="cmd">curl -fsSL https://galcabinet.github.io/perch/install.sh | sh</code>
+    <button id="copy" type="button">Copy</button>
+  </div>
+  <p class="small rise">The command installs Perch in Applications and opens it. If you download the zip, macOS stops the first open because the app is not notarized yet: go to System Settings, Privacy &amp; Security, and choose Open Anyway.</p>
+</section>
+
+<footer>
+  <span>Perch</span>
+  <span>Made for people with too many pull requests.</span>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), { passive: true });
+  const seen = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); seen.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.rise').forEach(el => seen.observe(el));
+  const copy = document.getElementById('copy');
+  copy.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(document.getElementById('cmd').textContent); copy.textContent = 'Copied'; }
+    catch { copy.textContent = 'Select it'; }
+    setTimeout(() => copy.textContent = 'Copy', 1600);
+  });
+</script>
+</body>
+</html>
