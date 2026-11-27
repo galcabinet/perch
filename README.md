@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/icon.png" width="120" alt="Perch"></p>
+<p align="center"><img src="img/icon.png" width="120" alt="Perch"></p>
 <h1 align="center">Perch</h1>
 <p align="center">One quiet Mac window for your pull requests and local runs.<br>
 <a href="https://galcabinet.github.io/perch">Website</a> · <a href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">Download for Mac</a></p>
