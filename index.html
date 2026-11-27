@@ -1,337 +1,210 @@
 <!doctype html>
-<html lang="en" data-type="software" data-radius="soft" data-buttons="arrow" data-motion>
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Perch: a Mac app for open pull requests and local dev servers</title>
-<meta name="description" content="Perch is a free macOS app that shows your open pull requests as a tree with their review status, beside every dev server running from your folders.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perch: your pull requests and dev servers in one small Mac window</title>
+<meta name="description" content="Perch is a free Mac app. One small window in the Dock for your open pull requests, their review status and your local dev servers.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Perch: a Mac app for open pull requests and local dev servers">
-<meta property="og:description" content="One window in the Dock for your open pull requests, their review status and your local dev servers. Free, 1.2 MB.">
+<meta property="og:title" content="Perch: your pull requests and dev servers in one small Mac window">
+<meta property="og:description" content="A free Mac app. One small window for your open pull requests, their review status and your local dev servers.">
 <meta property="og:image" content="https://galcabinet.github.io/perch/share.jpg">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0a0a0b">
+<meta name="color-scheme" content="dark">
 <link rel="icon" href="favicon.png" type="image/png">
-<meta name="theme-color" content="#0b0b0c">
-<meta name="site-kind" content="software">
-<meta name="page-type" content="software">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400..700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/system.css">
-<link rel="stylesheet" href="assets/ui/cards.css">
-<link rel="stylesheet" href="assets/motion/motion.css">
-<link rel="stylesheet" href="assets/backgrounds/backgrounds.css">
-<link rel="stylesheet" href="assets/layout/layout.css">
-<link rel="stylesheet" href="assets/icons/icon.css">
+<link rel="preload" href="fonts/nunito.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-:root {
-  --p-bg: #0b0b0c; --p-surface: #161617; --p-ink: #ffffff; --p-muted: #858586;
-  --p-accent: #ffffff; --p-accent-ink: #0b0b0c; --p-action: #ffffff; --p-action-ink: #0b0b0c;
-  --p-inv-bg: #ffffff; --p-inv-surface: #ebebeb; --p-inv-ink: #0b0b0c; --p-inv-muted: #5b5b5c;
-  --p-inv-accent: #0b0b0c; --p-inv-accent-ink: #ffffff; --p-inv-action: #0b0b0c; --p-inv-action-ink: #ffffff;
-  --font-display: "Urbanist", system-ui, sans-serif;
-  --font-text: "Urbanist", system-ui, sans-serif;
-  --font-mono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --display-weight: 500;
-  --display-tracking: -0.03em;
-  --display-tracking-xl: -0.04em;
+@font-face{font-family:Nunito;font-style:normal;font-weight:400 900;font-display:swap;src:url(fonts/nunito.woff2) format("woff2")}
+:root{--bg:#0a0a0b;--card:#151517;--line:#26262a;--text:#fff;--soft:#a3a3ab;--green:#5fbf77;--amber:#f0b93c;--red:#ea5f57}
+*{box-sizing:border-box;margin:0}
+html{background:var(--bg);color:var(--text);font-family:Nunito,ui-rounded,system-ui,sans-serif;font-size:100%;line-height:1.5;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;scroll-padding-top:5rem}
+body{min-height:100vh}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%;height:auto}
+.wrap{width:100%;max-width:64rem;margin:0 auto;padding:0 1.5rem}
+.narrow{max-width:42rem}
+
+/* top bar */
+header{position:sticky;top:0;z-index:5;background:rgba(10,10,11,.8);-webkit-backdrop-filter:blur(1rem);backdrop-filter:blur(1rem)}
+.bar{display:flex;align-items:center;justify-content:space-between;height:4rem}
+.brand{display:flex;align-items:center;gap:.625rem;font-weight:800;font-size:1.125rem}
+.brand img{width:1.75rem;height:1.75rem}
+nav{display:flex;align-items:center;gap:1.75rem;font-weight:600;font-size:.9375rem}
+nav a:not(.btn){color:var(--soft);transition:color .15s}
+nav a:not(.btn):hover{color:var(--text)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;height:2.5rem;padding:0 1.125rem;border-radius:99rem;background:var(--text);color:#0a0a0b;font-weight:800;font-size:.9375rem;transition:transform .15s,opacity .15s}
+.btn:hover{opacity:.88}
+.btn:active{transform:scale(.97)}
+.btn.big{height:3.25rem;padding:0 1.75rem;font-size:1.0625rem}
+.btn svg{width:1.125em;height:1.125em}
+
+/* sections */
+section{padding:6rem 0;text-align:center}
+h1,h2{font-weight:900;letter-spacing:-.03em;line-height:1.05;text-wrap:balance}
+h1{font-size:4.5rem}
+h2{font-size:3rem}
+.lead{margin:1.5rem auto 0;max-width:36rem;color:var(--soft);font-size:1.25rem;font-weight:500;text-wrap:balance}
+
+/* hero */
+.hero{padding:5rem 0 6rem}
+.dots{display:inline-flex;gap:.5rem;margin-bottom:2rem}
+.dots i,.d{display:inline-block;width:.75rem;height:.75rem;border-radius:50%}
+.g{background:var(--green)}.a{background:var(--amber)}.r{background:var(--red)}
+.cta{margin-top:2.5rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
+.fine{color:var(--soft);font-size:.9375rem;font-weight:600}
+.shot{margin:4.5rem auto 0;max-width:42.5rem;border-radius:1.25rem;overflow:hidden;border:1px solid var(--line);box-shadow:0 2.5rem 6rem rgba(0,0,0,.6)}
+
+/* three things */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:3.5rem;text-align:left}
+.card{background:var(--card);border:1px solid var(--line);border-radius:1.25rem;padding:1.75rem}
+.card h3{display:flex;align-items:center;gap:.625rem;font-size:1.25rem;font-weight:800;letter-spacing:-.01em}
+.card p{margin-top:.625rem;color:var(--soft);font-weight:500}
+
+/* works with */
+.with{display:flex;flex-wrap:wrap;justify-content:center;gap:.75rem;margin-top:2.5rem}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:99rem;padding:.625rem 1.25rem;font-weight:700}
+.pill span{color:var(--soft);font-weight:500}
+
+/* install */
+.cmd{display:flex;align-items:center;gap:.75rem;margin:2.5rem auto 0;max-width:40rem;background:var(--card);border:1px solid var(--line);border-radius:1rem;padding:.75rem .75rem .75rem 1.25rem;text-align:left}
+.cmd code{flex:1;min-width:0;overflow-x:auto;white-space:nowrap;font:500 .9375rem ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text);scrollbar-width:none}
+.cmd code::-webkit-scrollbar{display:none}
+.cmd button{flex:none;height:2.25rem;padding:0 1rem;border:0;border-radius:99rem;background:#26262a;color:var(--text);font:700 .875rem Nunito,ui-rounded,system-ui,sans-serif;cursor:pointer;transition:background .15s,transform .15s}
+.cmd button:hover{background:#34343a}
+.cmd button:active{transform:scale(.96)}
+
+/* questions */
+.faq{margin-top:3rem;text-align:left}
+details{border-top:1px solid var(--line)}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1.25rem 0;font-size:1.125rem;font-weight:700;cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--soft);font-weight:500;font-size:1.5rem;line-height:1;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{padding:0 0 1.25rem;color:var(--soft);font-weight:500;max-width:36rem}
+
+footer{padding:2.5rem 0;border-top:1px solid var(--line);color:var(--soft);font-size:.875rem;font-weight:500;text-align:center}
+
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--text);outline-offset:3px;border-radius:.5rem}
+
+@media (max-width:48rem){
+  h1{font-size:2.75rem}
+  h2{font-size:2.125rem}
+  .lead{font-size:1.125rem}
+  section{padding:4rem 0}
+  .hero{padding:3rem 0 4rem}
+  .shot{margin-top:3rem;border-radius:.875rem}
+  .three{grid-template-columns:1fr}
+  nav a:not(.btn){display:none}
 }
-</style>
-<link rel="stylesheet" href="assets/diagrams/diagram.css">
-<script>document.documentElement.classList.add('m-enter');setTimeout(()=>document.documentElement.classList.add('m-enter-done'),700)</script>
-<script src="assets/backgrounds/backgrounds.js"></script>
-<script>document.documentElement.classList.add('mo-js');setTimeout(()=>document.documentElement.classList.add('mo-safe'),2500)</script>
-<link rel="modulepreload" href="assets/moments/moments.js">
-<link rel="modulepreload" href="assets/moments/lib.js">
-<link rel="modulepreload" href="assets/moments/liquid-type/moment.js">
-<!-- page CSS: the Perch window drawn as live HTML (inside the visuals only), the status dots of its legend, the command line -->
-<style>
-  .pw { --pw-bg: #282828; --pw-card: #313131; --pw-ink: #ececec; --pw-mut: #a8a8a8; --pw-green: #5eb572; --pw-amber: #e9ba45; --pw-red: #d95f55; --pw-grey: #79797d;
-        container-type: inline-size; background: var(--pw-bg); color: var(--pw-ink); border: 1px solid rgb(255 255 255 / .1); border-radius: 12px; overflow: hidden;
-        font: 500 14px/1.3 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; letter-spacing: 0; text-align: left; }
-  .pw-in { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
-  .pw-in > * { flex: none; }
-  .pw--win { position: relative; }
-  .pw-bar { display: flex; align-items: center; justify-content: flex-end; gap: 14px; padding: 6px 8px 2px; color: var(--pw-mut); font-weight: 600; }
-  .pw-count { display: inline-flex; align-items: center; gap: 5px; }
-  .pw-i { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
-  .pw-d { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--pw-grey); flex: none; }
-  .pw-d--green { background: var(--pw-green); } .pw-d--amber { background: var(--pw-amber); } .pw-d--red { background: var(--pw-red); } .pw-d--grey { background: var(--pw-grey); }
-  .pw-d--red-old { background: #964d47; } .pw-d--amber-old { background: #a0843d; }
-  .pw-runs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: start; }
-  .pw-run { background: var(--pw-card); border-radius: 12px; padding: 9px 12px 5px; }
-  .pw-run__name { display: block; color: var(--pw-mut); font-size: 12px; font-weight: 600; padding-bottom: 3px; }
-  .pw-run__row { display: flex; align-items: center; gap: 9px; height: 30px; color: var(--pw-mut); }
-  .pw-branch { color: var(--pw-ink); } .pw-port { font-size: 12px; font-variant-numeric: tabular-nums; } .pw-sp { flex: 1; }
-  .pw-play { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #3478f6; color: #fff; }
-  .pw-play .pw-i { width: 11px; height: 11px; fill: currentColor; stroke: none; }
-  .pw-card { background: var(--pw-card); border-radius: 12px; padding: 12px 14px 8px; }
-  .pw-card__head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 6px; }
-  .pw-card__title { font-size: 17px; font-weight: 700; white-space: nowrap; }
-  .pw-num { font-size: 13px; font-weight: 600; color: var(--pw-mut); margin-left: 4px; }
-  .pw-chip { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 9px; border-radius: 999px; background: #3b3b3b; color: var(--pw-mut); font-size: 12px; font-weight: 600; white-space: nowrap; }
-  .pw-chip .pw-i { width: 11px; height: 11px; }
-  .pw-pr { position: relative; display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 4px 0; }
-  .pw-pr:has(.pw-thumb) { min-height: 54px; }
-  .pw-mark { position: relative; z-index: 1; display: grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; flex: none; margin-right: 2px;
-             color: #fff; font-size: 11px; font-weight: 700; line-height: 1; background: var(--pw-grey); box-shadow: 0 0 0 2px var(--pw-card); }
-  .pw-mark:empty { width: 9px; height: 9px; margin: 0 6px 0 4px; box-shadow: none; }
-  .pw-mark--green { background: var(--pw-green); } .pw-mark--amber { background: var(--pw-amber); } .pw-mark--red { background: var(--pw-red); }
-  .pw-card--stack .pw-pr::before { content: ""; position: absolute; left: 8px; top: 0; bottom: 0; width: 1.5px; background: #5c5c5c; }
-  .pw-card--stack .pw-pr:nth-child(2)::before { top: 50%; } .pw-card--stack .pw-pr:last-child::before { bottom: 50%; }
-  .pw-text { flex: 1 1 0; min-width: 0; display: grid; gap: 1px; }
-  .pw-title { font-size: 14px; font-weight: 600; }
-  .pw-title b { color: var(--pw-mut); font-weight: 600; margin-right: 3px; }
-  .pw-sub { font-size: 12px; font-weight: 500; color: var(--pw-mut); }
-  .pw-dots { display: inline-flex; align-items: flex-start; gap: 10px; flex: none; }
-  .pw-dot { display: grid; justify-items: center; gap: 4px; min-width: 18px; font-size: 11px; font-weight: 600; color: #7d7d7d; }
-  .pw-dot .pw-d { margin-top: 2px; }
-  .pw-dot > :is(.pw-d--green, .pw-d--amber, .pw-d--red, .pw-d--ring, .pw-d--clock) { width: 11px; height: 11px; margin-top: 0; }
-  .pw-d--ring { background: none; border: 1.5px solid #c9c9c9; }
-  .pw-d--clock { background: #c9c9c9 linear-gradient(#555, #555) 50% 30% / 1.5px 4px no-repeat; }
-  .pw-thumb { width: 74px; height: 46px; border-radius: 5px; flex: none; }
-  .pw-btn { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 12px; border-radius: 999px; background: #3d3d3d; color: #fff; font-size: 13px; font-weight: 700; white-space: nowrap; flex: none; }
-  .pw-btn .pw-i { width: 12px; height: 12px; } .pw-btn .pw-i[data-fill], .pw-plane { }
-  .pw-btn--merge { background: #529462; }
-  .pw-btn--clash { background: none; color: var(--pw-amber); box-shadow: inset 0 0 0 1.5px var(--pw-amber); }
-  .pw-plane { color: #6e6e6e; margin: 0 6px; }
-  .pw-foot { z-index: 2; position: absolute; inset: auto 0 0 0; display: flex; justify-content: space-between; padding: 7px 16px 8px; background: var(--pw-bg); color: #6e6e6e; font-size: 11px; }
-  .pw-foot::before { content: ""; position: absolute; inset: -32px 0 100% 0; background: linear-gradient(transparent, var(--pw-bg)); }
-  @container (max-width: 540px) {
-    .pw-thumb, .pw-plane, .pw-num { display: none; }
-    .pw-pr:has(.pw-thumb) { min-height: 42px; }
-    .pw-chip { display: none; }
-  }
-  @container (max-width: 400px) {
-    .pw-runs { grid-template-columns: 1fr; } .pw-run + .pw-run { display: none; }
-    .pw-btn { font-size: 0; gap: 0; padding: 0 8px; }
-    .pw-title { font-size: 13px; }
-  }
-  /* the lit ground behind UI in the client's own neutral (the kit's sand, sky and sage are not the client's colours) */
-  html[data-ground] { --ground-bg: #636366; --ground-surface: #77777b; --ground-ink: #0b0b0c; --ground-muted: #26262a; --ground-accent: #8e8e93; }
-  /* the window in its places */
-  .hero--split .hero__media { background: none; }
-  .hero--split .hero__media > .pw { position: absolute; inset: 0; }
-  .stage > .pw-slot { left: 24px; right: 24px; top: 32px; }
-  #runs .pw.fill { margin-top: var(--s-7); }
-  /* the legend's status dots and the command line */
-  .st { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: var(--s-3); background: #8a8a8e; }
-  .st--green { background: #34c778; } .st--amber { background: #f5be32; } .st--red { background: #ee605a; }
-  .cmd { display: block; font: 400 15px/1.5 var(--font-mono); color: var(--ink); overflow-wrap: anywhere; }
-  #actions .frame { background: #636366; }
-  @media (min-width: 640px) and (max-width: 1023px) and (min-height: 1100px) { #questions .faq > .faq__item { padding-block: 34px; } }
-  #actions [role="tabpanel"] { min-height: 7.5em; }
-  @media (max-width: 639px) { .close__word { font-size: 16vw; } #questions .faq__item:nth-child(n+3):nth-child(-n+4) { display: none; } #questions .faq > .faq__item { padding-block: 32px; } #questions .faq > .faq__item:first-child { padding-top: 0; } .stage > .pw-slot { left: 12px; right: 12px; top: 16px; } }
-  @media (min-width: 640px) { .close__word { font-size: clamp(96px, min(26vw, 36svh), 400px); } }
-  #setup .panel { height: 100%; }
-  @media (max-width: 1023px) { #setup .grid.fill { display: flex; flex-direction: column; gap: var(--s-6); } #setup .panel { flex: 1 1 0; min-height: 240px; height: auto; } }
-  @media (max-width: 639px) { #setup .grid.fill { flex: none; } #setup .panel { flex: none; height: 200px; min-height: 0; } }
-  @media (min-width: 640px) and (max-width: 1023px) { #facts .rows > li { padding-block: 32px; } #facts .rows > li:first-child { padding-top: 0; } }
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
 </style>
 </head>
 <body>
-<!-- type: software (site-kind software)
-     deal: hero split, nav nav-centre (nav-mega dealt; re-dealt, one app on one page has no feature pages), close close-word,
-           footer footer-dark, rhythm surface-pairs (facts), buttons arrow, mark: the client's own icon, grounds none (bg-band and bg-halo dealt, not built)
-     palette: the client's own colours (start.mjs brand); type urbanist; effect grain-gradient in the pulls frame
-     moments: liquid-type on the facts statement -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="pi-refresh" viewBox="0 0 16 16"><path d="M13 8a5 5 0 1 1-1.6-3.7M12.5 2v2.8H9.7"/></symbol>
-  <symbol id="pi-gear" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.8v1.6M8 12.6v1.6M1.8 8h1.6M12.6 8h1.6M3.6 3.6l1.2 1.2M11.2 11.2l1.2 1.2M12.4 3.6l-1.2 1.2M4.8 11.2l-1.2 1.2"/></symbol>
-  <symbol id="pi-globe" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.6"/><path d="M2.4 8h11.2M8 2.4c2 1.6 2 9.6 0 11.2M8 2.4c-2 1.6-2 9.6 0 11.2"/></symbol>
-  <symbol id="pi-x" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
-  <symbol id="pi-play" viewBox="0 0 16 16"><path d="M4 2.5v11l9.5-5.5z"/></symbol>
-  <symbol id="pi-merge" viewBox="0 0 16 16"><path d="M8 14V7M8 7 4.5 2.5M8 7l3.5-4.5"/></symbol>
-  <symbol id="pi-plane" viewBox="0 0 16 16"><path d="M14 2 2 7.2l4.6 1.6L8.4 14z M14 2 6.6 8.8"/></symbol>
-  <symbol id="pi-down" viewBox="0 0 16 16"><path d="M8 2.5v11M3.5 9 8 13.5 12.5 9"/></symbol>
-  <symbol id="pi-group" viewBox="0 0 16 16"><circle cx="4.5" cy="4.5" r="1.8"/><circle cx="11.5" cy="4.5" r="1.8"/><circle cx="4.5" cy="11.5" r="1.8"/><circle cx="11.5" cy="11.5" r="1.8"/></symbol>
-  <symbol id="pi-loose" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.4" stroke-dasharray="2 2.4"/></symbol>
-</svg>
 
-<header class="nav nav--centre">
-  <div class="wrap nav__bar">
-    <a class="skip-link" href="#top">Skip to content</a>
-    <a class="nav__logo" href="#top"><img src="img/icon-128.png" width="24" height="24" alt="">Perch</a>
-    <nav class="nav__links" aria-label="Main">
-      <div class="nav__item"><a class="nav__link" href="#pulls">Stacks</a></div>
-      <div class="nav__item"><a class="nav__link" href="#actions">Actions</a></div>
-      <div class="nav__item"><a class="nav__link" href="#runs">Runs</a></div>
-      <div class="nav__item"><a class="nav__link" href="#setup">Install</a></div>
-      <div class="nav__item"><a class="nav__link" href="#questions">Questions</a></div>
+<header>
+  <div class="wrap bar">
+    <a class="brand" href="#top"><img src="img/icon-128.png" width="28" height="28" alt="">Perch</a>
+    <nav>
+      <a href="#what">What it does</a>
+      <a href="#install">Install</a>
+      <a href="#questions">Questions</a>
+      <a class="btn" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">Download</a>
     </nav>
-    <div class="nav__actions">
-      <a class="btn btn--primary" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">Download for Mac</a>
-    </div>
-    <button class="nav__toggle" type="button" aria-expanded="false" aria-label="Menu">
-      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 5h14M2 13h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-    </button>
   </div>
 </header>
 
 <main id="top">
-  <section class="hero hero--split" data-enter aria-labelledby="hero-h">
-    <div class="wrap"><div class="hero-text grid hero__grid">
-      <div class="hero__text span-5">
-        <p class="hero__kicker">Free for macOS 14 and later, a 1.2 MB download</p>
-        <h1 id="hero-h">Mac app for your open pull requests</h1>
-        <p class="hero__lead">Perch sits in the Dock and shows every pull request you have open as a tree, each with its review status, beside the dev servers running on your Mac.</p>
-        <div class="btn-row"><a class="btn btn--primary" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">Download for Mac</a></div>
-      </div>
-      <div class="hero__media span-6 start-7">
-        <div class="ui ui-perch pw pw--win"><div class="pw-in" role="img" aria-label="The Perch window: two project cards with three running servers, then four groups of pull requests, each row with its status colour and review dots"><div class="pw-bar"><span class="pw-count"><i class="pw-d pw-d--green"></i>4</span><span class="pw-count"><i class="pw-d pw-d--amber"></i>2</span><span class="pw-count"><i class="pw-d pw-d--red"></i>2</span><span class="pw-count"><i class="pw-d pw-d--grey"></i>3</span><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-refresh"/></svg><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-gear"/></svg></div><div class="pw-runs"><div class="pw-run"><span class="pw-run__name">atlas-web</span><div class="pw-run__row"><i class="pw-d pw-d--green"></i><span class="pw-branch">main</span><span class="pw-port">:3000</span><span class="pw-sp"></span><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-globe"/></svg><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-x"/></svg></div><div class="pw-run__row"><i class="pw-d pw-d--green"></i><span class="pw-branch">offline-sync</span><span class="pw-sp"></span><span class="pw-port">:3010</span><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-x"/></svg></div><div class="pw-run__row"><i class="pw-d pw-d--green"></i><span class="pw-branch">passkeys</span><span class="pw-sp"></span><span class="pw-port">:3020</span><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-x"/></svg></div></div><div class="pw-run"><span class="pw-run__name">atlas-api</span><div class="pw-run__row"><i class="pw-d pw-d--grey"></i><span class="pw-branch">main</span><span class="pw-sp"></span><span class="pw-play"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-play"/></svg></span></div></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Offline sync <span class="pw-num">#410</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 4, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#412</b> Offline mode for the editor</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>5h</span></span></span><img class="pw-thumb" src="img/t412.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--green">2</span><span class="pw-text"><span class="pw-title"><b>#413</b> Queue edits while offline</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--amber-old"></i><span>20h</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>4h</span></span></span><img class="pw-thumb" src="img/t413.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber">3</span><span class="pw-text"><span class="pw-title"><b>#414</b> Merge edits when back online</span><span class="pw-sub">Reviewer signs off on the size</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>22h</span></span><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>3h</span></span></span><img class="pw-thumb" src="img/t414.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red">4</span><span class="pw-text"><span class="pw-title"><b>#415</b> Show sync state in the toolbar</span><span class="pw-sub">Add a test for the retry path</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>2h</span></span></span><img class="pw-thumb" src="img/t415.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Passkeys <span class="pw-num">#397</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 2, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#398</b> Passkeys on sign in</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>2d</span></span><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>8h</span></span></span><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey">2</span><span class="pw-text"><span class="pw-title"><b>#399</b> Recover an account with a passkey</span><span class="pw-sub">Updated 1h ago, needs a new review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>1h</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">Faster search</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-group"/></svg>Group of 2, no order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#421</b> Search remembers recent queries</span><span class="pw-sub">Sent 24m ago, waiting for review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>9h</span></span><span class="pw-dot"><i class="pw-d pw-d--clock"></i><span>24m</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red"></span><span class="pw-text"><span class="pw-title"><b>#423</b> Search results load as you type</span><span class="pw-sub">Debounce the request, keep the old results</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>6h</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">On their own</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-loose"/></svg>3 not linked</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green"></span><span class="pw-text"><span class="pw-title"><b>#430</b> Export a board to PDF</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>7h</span></span></span><img class="pw-thumb" src="img/t430.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber"></span><span class="pw-text"><span class="pw-title"><b>#427</b> Dark theme for the settings page</span><span class="pw-sub">Design gives the final yes</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>12h</span></span></span><span class="pw-btn pw-btn--clash"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Fix clash</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#431</b> Fix a crash when the list is empty</span><span class="pw-sub">Updated 36m ago, no review yet</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>36m</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div></div><div class="pw-foot"><span>Updated 21:47</span><span>11 open</span></div></div>
-      </div>
-    </div></div>
-  </section>
 
-  <section class="section" id="pulls" style="--hm: 2" aria-labelledby="pulls-h">
-    <div class="wrap">
-      <div class="grid grid--top fill">
-        <div class="span-5 stack-5">
-          <h2 id="pulls-h">Stacked pull requests, in merge order</h2>
-          <p class="t-lead">A stack shows as numbered steps with a line down the side. Loose pull requests that belong together sit in a group under a short name. Click a row and it opens in your browser on the first click, in about 150 ms.</p>
-          <ul class="rows">
-            <li><span class="rows__name"><i class="st st--green"></i>Green</span><span class="rows__value">Approved</span></li>
-            <li><span class="rows__name"><i class="st st--amber"></i>Yellow</span><span class="rows__value">Reviewer decides</span></li>
-            <li><span class="rows__name"><i class="st st--red"></i>Red</span><span class="rows__value">Change requested</span></li>
-            <li><span class="rows__name"><i class="st"></i>Grey</span><span class="rows__value">Not reviewed</span></li>
-          </ul>
-        </div>
-        <div class="frame frame--split frame--fill span-6 start-7" data-visual data-fx="grain-gradient" data-fx-seed="12" data-fx-palette='{"bg":"#636366","surface":"#77777b","ink":"#0b0b0c","accent":"#8e8e93"}' data-fx-params='{"grainMotion":0,"speed":0}'>
-          <div class="stage stage--fade-b"><div class="pw-slot to-edge">
-            <div class="ui ui-perch pw pw--frag"><div class="pw-in" role="img" aria-label="A stack of four pull requests in order, numbered green, green, yellow and red, above a group of two"><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Offline sync <span class="pw-num">#410</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 4, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#412</b> Offline mode for the editor</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>5h</span></span></span><img class="pw-thumb" src="img/t412.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--green">2</span><span class="pw-text"><span class="pw-title"><b>#413</b> Queue edits while offline</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--amber-old"></i><span>20h</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>4h</span></span></span><img class="pw-thumb" src="img/t413.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber">3</span><span class="pw-text"><span class="pw-title"><b>#414</b> Merge edits when back online</span><span class="pw-sub">Reviewer signs off on the size</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>22h</span></span><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>3h</span></span></span><img class="pw-thumb" src="img/t414.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red">4</span><span class="pw-text"><span class="pw-title"><b>#415</b> Show sync state in the toolbar</span><span class="pw-sub">Add a test for the retry path</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>2h</span></span></span><img class="pw-thumb" src="img/t415.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">Faster search</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-group"/></svg>Group of 2, no order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#421</b> Search remembers recent queries</span><span class="pw-sub">Sent 24m ago, waiting for review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>9h</span></span><span class="pw-dot"><i class="pw-d pw-d--clock"></i><span>24m</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red"></span><span class="pw-text"><span class="pw-title"><b>#423</b> Search results load as you type</span><span class="pw-sub">Debounce the request, keep the old results</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>6h</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Passkeys <span class="pw-num">#397</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 2, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#398</b> Passkeys on sign in</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>2d</span></span><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>8h</span></span></span><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey">2</span><span class="pw-text"><span class="pw-title"><b>#399</b> Recover an account with a passkey</span><span class="pw-sub">Updated 1h ago, needs a new review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>1h</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">On their own</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-loose"/></svg>3 not linked</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green"></span><span class="pw-text"><span class="pw-title"><b>#430</b> Export a board to PDF</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>7h</span></span></span><img class="pw-thumb" src="img/t430.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber"></span><span class="pw-text"><span class="pw-title"><b>#427</b> Dark theme for the settings page</span><span class="pw-sub">Design gives the final yes</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>12h</span></span></span><span class="pw-btn pw-btn--clash"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Fix clash</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#431</b> Fix a crash when the list is empty</span><span class="pw-sub">Updated 36m ago, no review yet</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>36m</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div></div></div>
-          </div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="actions" aria-labelledby="actions-h">
-    <div class="wrap">
-      <div class="grid grid--top fill">
-        <div class="span-5 stack-5">
-          <div class="section-head">
-            <h2 id="actions-h">One click for each review step</h2>
-          </div>
-          <div class="tabs" role="tablist" aria-label="Review steps">
-            <button class="tab" role="tab" type="button" id="t-rounds" aria-selected="true" aria-controls="p-rounds s-rounds">Read rounds</button>
-            <button class="tab" role="tab" type="button" id="t-send" aria-selected="false" aria-controls="p-send s-send" tabindex="-1">Send to Slack</button>
-            <button class="tab" role="tab" type="button" id="t-merge" aria-selected="false" aria-controls="p-merge s-merge" tabindex="-1">Merge branches</button>
-          </div>
-          <div role="tabpanel" id="p-rounds" aria-labelledby="t-rounds"><p class="t-lead">Each dot is one review round, oldest on the left, with how long ago it happened. A ring means the branch changed and has not been reviewed again.</p></div>
-          <div role="tabpanel" id="p-send" aria-labelledby="t-send" hidden><p class="t-lead">The paper plane sends the pull request link to a Slack channel as you. Perch drives the Slack desktop app, so there is no bot to add and no token to store.</p></div>
-          <div role="tabpanel" id="p-merge" aria-labelledby="t-merge" hidden><p class="t-lead">An approved pull request gets a Merge button that squash-merges it, and confetti crosses the screen. When only a changelog file conflicts, Fix clash keeps both sides and pushes.</p></div>
-        </div>
-        <div class="frame frame--split frame--fill span-6 start-7">
-          <div class="stage stage--fade-b">
-            <div class="pw-slot to-edge" id="s-rounds"><div class="ui ui-perch pw pw--frag"><div class="pw-in" role="img" aria-label="The Passkeys stack: the first pull request with three review dots ending in green, the second with a ring because its branch changed after the last review"><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Passkeys <span class="pw-num">#397</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 2, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#398</b> Passkeys on sign in</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>2d</span></span><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>8h</span></span></span><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey">2</span><span class="pw-text"><span class="pw-title"><b>#399</b> Recover an account with a passkey</span><span class="pw-sub">Updated 1h ago, needs a new review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>1h</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">On their own</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-loose"/></svg>3 not linked</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green"></span><span class="pw-text"><span class="pw-title"><b>#430</b> Export a board to PDF</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>7h</span></span></span><img class="pw-thumb" src="img/t430.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber"></span><span class="pw-text"><span class="pw-title"><b>#427</b> Dark theme for the settings page</span><span class="pw-sub">Design gives the final yes</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>12h</span></span></span><span class="pw-btn pw-btn--clash"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Fix clash</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#431</b> Fix a crash when the list is empty</span><span class="pw-sub">Updated 36m ago, no review yet</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>36m</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Offline sync <span class="pw-num">#410</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 4, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#412</b> Offline mode for the editor</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>5h</span></span></span><img class="pw-thumb" src="img/t412.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--green">2</span><span class="pw-text"><span class="pw-title"><b>#413</b> Queue edits while offline</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--amber-old"></i><span>20h</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>4h</span></span></span><img class="pw-thumb" src="img/t413.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber">3</span><span class="pw-text"><span class="pw-title"><b>#414</b> Merge edits when back online</span><span class="pw-sub">Reviewer signs off on the size</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>22h</span></span><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>3h</span></span></span><img class="pw-thumb" src="img/t414.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red">4</span><span class="pw-text"><span class="pw-title"><b>#415</b> Show sync state in the toolbar</span><span class="pw-sub">Add a test for the retry path</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>2h</span></span></span><img class="pw-thumb" src="img/t415.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">Faster search</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-group"/></svg>Group of 2, no order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#421</b> Search remembers recent queries</span><span class="pw-sub">Sent 24m ago, waiting for review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>9h</span></span><span class="pw-dot"><i class="pw-d pw-d--clock"></i><span>24m</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red"></span><span class="pw-text"><span class="pw-title"><b>#423</b> Search results load as you type</span><span class="pw-sub">Debounce the request, keep the old results</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>6h</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div></div></div></div>
-            <div class="pw-slot to-edge" id="s-send" hidden><div class="ui ui-perch pw pw--frag"><div class="pw-in" role="img" aria-label="The Faster search group: the first pull request reads Sent 24 minutes ago, waiting for review"><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">Faster search</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-group"/></svg>Group of 2, no order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#421</b> Search remembers recent queries</span><span class="pw-sub">Sent 24m ago, waiting for review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>9h</span></span><span class="pw-dot"><i class="pw-d pw-d--clock"></i><span>24m</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red"></span><span class="pw-text"><span class="pw-title"><b>#423</b> Search results load as you type</span><span class="pw-sub">Debounce the request, keep the old results</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>6h</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Offline sync <span class="pw-num">#410</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 4, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#412</b> Offline mode for the editor</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>5h</span></span></span><img class="pw-thumb" src="img/t412.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--green">2</span><span class="pw-text"><span class="pw-title"><b>#413</b> Queue edits while offline</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--amber-old"></i><span>20h</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>4h</span></span></span><img class="pw-thumb" src="img/t413.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber">3</span><span class="pw-text"><span class="pw-title"><b>#414</b> Merge edits when back online</span><span class="pw-sub">Reviewer signs off on the size</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>22h</span></span><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>3h</span></span></span><img class="pw-thumb" src="img/t414.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red">4</span><span class="pw-text"><span class="pw-title"><b>#415</b> Show sync state in the toolbar</span><span class="pw-sub">Add a test for the retry path</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>2h</span></span></span><img class="pw-thumb" src="img/t415.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Passkeys <span class="pw-num">#397</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 2, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#398</b> Passkeys on sign in</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>2d</span></span><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>8h</span></span></span><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey">2</span><span class="pw-text"><span class="pw-title"><b>#399</b> Recover an account with a passkey</span><span class="pw-sub">Updated 1h ago, needs a new review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>1h</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">On their own</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-loose"/></svg>3 not linked</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green"></span><span class="pw-text"><span class="pw-title"><b>#430</b> Export a board to PDF</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>7h</span></span></span><img class="pw-thumb" src="img/t430.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber"></span><span class="pw-text"><span class="pw-title"><b>#427</b> Dark theme for the settings page</span><span class="pw-sub">Design gives the final yes</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>12h</span></span></span><span class="pw-btn pw-btn--clash"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Fix clash</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#431</b> Fix a crash when the list is empty</span><span class="pw-sub">Updated 36m ago, no review yet</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>36m</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div></div></div></div>
-            <div class="pw-slot to-edge" id="s-merge" hidden><div class="ui ui-perch pw pw--frag"><div class="pw-in" role="img" aria-label="Three loose pull requests: one approved with a Merge button, one with a Fix clash button, one with Send for review"><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">On their own</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-loose"/></svg>3 not linked</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green"></span><span class="pw-text"><span class="pw-title"><b>#430</b> Export a board to PDF</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>7h</span></span></span><img class="pw-thumb" src="img/t430.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber"></span><span class="pw-text"><span class="pw-title"><b>#427</b> Dark theme for the settings page</span><span class="pw-sub">Design gives the final yes</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>12h</span></span></span><span class="pw-btn pw-btn--clash"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Fix clash</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#431</b> Fix a crash when the list is empty</span><span class="pw-sub">Updated 36m ago, no review yet</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>36m</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Passkeys <span class="pw-num">#397</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 2, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#398</b> Passkeys on sign in</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>2d</span></span><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>8h</span></span></span><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey">2</span><span class="pw-text"><span class="pw-title"><b>#399</b> Recover an account with a passkey</span><span class="pw-sub">Updated 1h ago, needs a new review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>1h</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Offline sync <span class="pw-num">#410</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 4, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#412</b> Offline mode for the editor</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>5h</span></span></span><img class="pw-thumb" src="img/t412.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--green">2</span><span class="pw-text"><span class="pw-title"><b>#413</b> Queue edits while offline</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--amber-old"></i><span>20h</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>4h</span></span></span><img class="pw-thumb" src="img/t413.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber">3</span><span class="pw-text"><span class="pw-title"><b>#414</b> Merge edits when back online</span><span class="pw-sub">Reviewer signs off on the size</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>22h</span></span><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>3h</span></span></span><img class="pw-thumb" src="img/t414.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red">4</span><span class="pw-text"><span class="pw-title"><b>#415</b> Show sync state in the toolbar</span><span class="pw-sub">Add a test for the retry path</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>2h</span></span></span><img class="pw-thumb" src="img/t415.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div><div class="pw-card"><div class="pw-card__head"><span class="pw-card__title">Faster search</span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-group"/></svg>Group of 2, no order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--grey"></span><span class="pw-text"><span class="pw-title"><b>#421</b> Search remembers recent queries</span><span class="pw-sub">Sent 24m ago, waiting for review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>9h</span></span><span class="pw-dot"><i class="pw-d pw-d--clock"></i><span>24m</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red"></span><span class="pw-text"><span class="pw-title"><b>#423</b> Search results load as you type</span><span class="pw-sub">Debounce the request, keep the old results</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>6h</span></span></span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div></div></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section ground-surface" id="facts" aria-labelledby="facts-h">
-    <div class="wrap">
-      <div data-moment="liquid-type" class="section-head" style="max-width:none">
-        <h2 class="mo-lt__type" id="facts-h">No account. No server.</h2>
-        <p>Perch signs in nowhere and uploads nothing of its own. The five figures below are measured.</p>
-      </div>
-      <ul class="rows rows--spec">
-        <li><span class="rows__name">Accounts to create</span><span class="rows__value">0</span></li>
-        <li><span class="rows__name">Processor use while the window is hidden</span><span class="rows__value">0%</span></li>
-        <li><span class="rows__name">Reading what is running</span><span class="rows__value">under 10 ms</span></li>
-        <li><span class="rows__name">First click to the browser</span><span class="rows__value">about 150 ms</span></li>
-        <li><span class="rows__name">Download</span><span class="rows__value">1.2 MB</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="section" id="runs" aria-labelledby="runs-h">
-    <div class="wrap">
-      <div class="grid grid--top">
-        <h2 class="span-5" id="runs-h">Dev servers from every folder</h2>
-        <p class="span-6 start-7 t-lead">Add any folder with its run command, which Perch guesses from the folder. Each card lists what is listening from that folder and its git worktrees: the port, the branch, a button to open it and one to stop it. Perch asks macOS which processes listen, so it also sees servers a script or an agent started.</p>
-      </div>
-      <div class="ui ui-perch pw pw--win fill"><div class="pw-in" role="img" aria-label="The top of the Perch window: atlas-web with servers on ports 3000, 3010 and 3020 for three branches, and atlas-api stopped with a start button"><div class="pw-bar"><span class="pw-count"><i class="pw-d pw-d--green"></i>4</span><span class="pw-count"><i class="pw-d pw-d--amber"></i>2</span><span class="pw-count"><i class="pw-d pw-d--red"></i>2</span><span class="pw-count"><i class="pw-d pw-d--grey"></i>3</span><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-refresh"/></svg><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-gear"/></svg></div><div class="pw-runs"><div class="pw-run"><span class="pw-run__name">atlas-web</span><div class="pw-run__row"><i class="pw-d pw-d--green"></i><span class="pw-branch">main</span><span class="pw-port">:3000</span><span class="pw-sp"></span><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-globe"/></svg><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-x"/></svg></div><div class="pw-run__row"><i class="pw-d pw-d--green"></i><span class="pw-branch">offline-sync</span><span class="pw-sp"></span><span class="pw-port">:3010</span><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-x"/></svg></div><div class="pw-run__row"><i class="pw-d pw-d--green"></i><span class="pw-branch">passkeys</span><span class="pw-sp"></span><span class="pw-port">:3020</span><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-x"/></svg></div></div><div class="pw-run"><span class="pw-run__name">atlas-api</span><div class="pw-run__row"><i class="pw-d pw-d--grey"></i><span class="pw-branch">main</span><span class="pw-sp"></span><span class="pw-play"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-play"/></svg></span></div></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Offline sync <span class="pw-num">#410</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 4, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#412</b> Offline mode for the editor</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>5h</span></span></span><img class="pw-thumb" src="img/t412.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--green">2</span><span class="pw-text"><span class="pw-title"><b>#413</b> Queue edits while offline</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--amber-old"></i><span>20h</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>4h</span></span></span><img class="pw-thumb" src="img/t413.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--amber">3</span><span class="pw-text"><span class="pw-title"><b>#414</b> Merge edits when back online</span><span class="pw-sub">Reviewer signs off on the size</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>22h</span></span><span class="pw-dot"><i class="pw-d pw-d--amber"></i><span>3h</span></span></span><img class="pw-thumb" src="img/t414.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--red">4</span><span class="pw-text"><span class="pw-title"><b>#415</b> Show sync state in the toolbar</span><span class="pw-sub">Add a test for the retry path</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red"></i><span>2h</span></span></span><img class="pw-thumb" src="img/t415.webp" width="74" height="46" alt="" loading="lazy" decoding="async"><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div></div><div class="pw-card pw-card--stack"><div class="pw-card__head"><span class="pw-card__title">Passkeys <span class="pw-num">#397</span></span><span class="pw-chip"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-down"/></svg>Stack of 2, in order</span></div><div class="pw-pr"><span class="pw-mark pw-mark--green">1</span><span class="pw-text"><span class="pw-title"><b>#398</b> Passkeys on sign in</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>2d</span></span><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--green"></i><span>8h</span></span></span><span class="pw-btn pw-btn--merge"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-merge"/></svg>Merge</span><svg class="pw-i pw-plane" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg></div><div class="pw-pr"><span class="pw-mark pw-mark--grey">2</span><span class="pw-text"><span class="pw-title"><b>#399</b> Recover an account with a passkey</span><span class="pw-sub">Updated 1h ago, needs a new review</span></span><span class="pw-dots"><span class="pw-dot"><i class="pw-d pw-d--red-old"></i><span>1d</span></span><span class="pw-dot"><i class="pw-d pw-d--ring"></i><span>1h</span></span></span><span class="pw-btn"><svg class="pw-i" viewBox="0 0 16 16" aria-hidden="true"><use href="#pi-plane"/></svg>Send for review</span></div></div></div><div class="pw-foot"><span>Updated 21:47</span><span>11 open</span></div></div>
-    </div>
-  </section>
-
-  <section class="section" id="questions" aria-labelledby="questions-h">
-    <div class="wrap">
-      <div class="grid grid--top">
-        <div class="span-5 stack-4">
-          <h2 id="questions-h">Questions</h2>
-          <p class="muted t-lead">What Perch costs, what it needs and where your data goes.</p>
-        </div>
-        <div class="faq span-6 start-7">
-          <div class="faq__item"><h3>What does Perch cost?</h3><p>Nothing. Perch is free, for macOS 14 or later on Apple silicon and Intel.</p></div>
-          <div class="faq__item"><h3>What does Perch need installed?</h3><p>The GitHub CLI (gh), signed in. Perch reads your pull requests and merges them through it.</p></div>
-          <div class="faq__item"><h3>What does Perch use Claude Code for?</h3><p>It reads each review to tell yellow from red in nine words or fewer, and it names the groups. Without it the colour comes from GitHub's own review state.</p></div>
-          <div class="faq__item"><h3>How does Perch post to Slack?</h3><p>Through the Slack desktop app, as you. macOS asks once for Accessibility permission.</p></div>
-          <div class="faq__item"><h3>Why does macOS block Perch at first?</h3><p>Perch is not notarized yet. After a zip download, choose Open Anyway once in System Settings.</p></div>
-          <div class="faq__item"><h3>Where does Perch send my data?</h3><p>Perch has no server of its own. It reaches GitHub, Claude and Slack only through the tools on your Mac.</p></div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <section class="section" id="setup" aria-labelledby="setup-h">
-    <div class="wrap">
-      <div class="grid grid--top fill">
-        <div class="span-5 stack-5">
-          <h2 id="setup-h">Install Perch with one command</h2>
-          <p class="t-lead">The script puts Perch in Applications and opens it. Perch then works through the tools already on your Mac.</p>
-          <code class="cmd" id="cmd">curl -fsSL https://galcabinet.github.io/perch/install.sh | sh</code>
-          <div class="btn-row"><button class="btn btn--secondary" type="button" data-copy="cmd" data-copied="Copied">Copy the command</button></div>
-          <p>Perch is not notarized yet. A zip download needs Open Anyway once, in System Settings, Privacy &amp; Security. The install command avoids that step.</p>
-        </div>
-        <div class="panel span-6 start-7">
-          <div class="dg" data-dg-still data-diagram='{"layout":"hub","alt":"Perch at the centre, connected to the GitHub CLI, Claude Code, Slack and macOS.","center":{"label":"Perch"},"spokes":[{"label":"GitHub CLI","icon":"github","meta":"Required"},{"label":"Claude Code","icon":"claude","meta":"Optional"},{"label":"Slack","icon":"slack","meta":"Optional"},{"label":"macOS","icon":"apple","meta":"Built in"}]}'></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-</main>
-
-<footer class="footer closing footer--dark ground-inverse" id="contact" aria-labelledby="close-h">
+<section class="hero">
   <div class="wrap">
-    <div class="closing__cta close--word">
-      <div class="section-head--split">
-        <div><h2 id="close-h">Download Perch</h2><p class="t-lead">Free, 1.2 MB, for macOS 14 or later on Apple silicon and Intel.</p></div>
-        <a class="btn btn--primary" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">Download for Mac</a>
-      </div>
-      <p class="close__word" aria-hidden="true">Perch</p>
+    <div class="dots" aria-hidden="true"><i class="g"></i><i class="a"></i><i class="r"></i></div>
+    <h1>All your pull requests.<br>One small window.</h1>
+    <p class="lead">Perch sits in your Dock and shows every pull request you have open, where its review stands, and the dev servers running on your Mac.</p>
+    <div class="cta">
+      <a class="btn big" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M3 13.5h10"/></svg>
+        Download for Mac
+      </a>
+      <span class="fine">Free. macOS 14 or later. Apple silicon and Intel.</span>
     </div>
-    <div class="closing__links">
-      <div class="grid">
-        <div class="span-3 footer__col"><h3>Pull requests</h3><ul><li><a href="#pulls">Stacks and groups</a></li><li><a href="#actions">Review steps</a></li></ul></div>
-        <div class="span-3 footer__col"><h3>Local runs</h3><ul><li><a href="#runs">Dev servers</a></li></ul></div>
-        <div class="span-3 footer__col"><h3>About Perch</h3><ul><li><a href="#facts">Measured facts</a></li><li><a href="#questions">Questions</a></li></ul></div>
-        <div class="span-3 footer__col"><h3>Install</h3><ul><li><a href="#setup">Install command</a></li></ul></div>
+    <img class="shot" src="img/app.webp" width="1360" height="1760" alt="The Perch window: two project folders with their running dev servers on top, and below them pull requests grouped into stacks, each with a green, amber or red status dot and a Merge button." fetchpriority="high">
+  </div>
+</section>
+
+<section id="what">
+  <div class="wrap">
+    <h2>Three colors. That's the whole idea.</h2>
+    <p class="lead">Look once and know what to do next.</p>
+    <div class="three">
+      <div class="card">
+        <h3><i class="d g"></i>Green. Merge it.</h3>
+        <p>Approved and ready. One click merges it. Stacked pull requests show as numbered steps, so you merge them in order.</p>
       </div>
-      <div class="footer__legal">
-        <span>&copy; 2026 Perch</span>
-        <span>Product names and logos are trademarks of their owners</span>
+      <div class="card">
+        <h3><i class="d a"></i>Amber. Almost.</h3>
+        <p>The reviewer has one thing to decide. Perch tells you what it is in a few words, so you don't have to open the page.</p>
+      </div>
+      <div class="card">
+        <h3><i class="d r"></i>Red. Fix it.</h3>
+        <p>Changes were asked for. When you push the fix, one click sends the link back to your reviewer in Slack.</p>
       </div>
     </div>
   </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Your dev servers too.</h2>
+    <p class="lead">Add any folder and its run command. Perch shows what is running, on which port and branch, with a button to start, open or stop it.</p>
+    <div class="with">
+      <div class="pill">GitHub CLI <span>reads and merges</span></div>
+      <div class="pill">Claude Code <span>sums up reviews</span></div>
+      <div class="pill">Slack <span>asks for a review</span></div>
+    </div>
+    <p class="fine" style="margin-top:1.5rem">No account. No server. Perch only uses the tools already on your Mac.</p>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>Install in one line.</h2>
+    <p class="lead">Paste this in Terminal. It puts Perch in Applications and opens it.</p>
+    <div class="cmd">
+      <code id="cmd">curl -fsSL https://galcabinet.github.io/perch/install.sh | sh</code>
+      <button type="button" id="copy">Copy</button>
+    </div>
+    <p class="fine" style="margin-top:1.5rem">Or <a href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip" style="color:#fff;text-decoration:underline;text-underline-offset:.2em">download the app</a> and drag it to Applications.</p>
+  </div>
+</section>
+
+<section id="questions">
+  <div class="wrap narrow">
+    <h2>Questions</h2>
+    <div class="faq">
+      <details><summary>What does it cost?</summary><p>Nothing. Perch is free.</p></details>
+      <details><summary>What do I need installed?</summary><p>The GitHub CLI (gh), signed in. Perch reads and merges your pull requests through it. Claude Code and Slack are optional.</p></details>
+      <details><summary>What is Claude Code used for?</summary><p>It reads each review and sums it up in a few words, and it names your groups. Without it, the color comes from GitHub's own review state.</p></details>
+      <details><summary>How does it post to Slack?</summary><p>Through the Slack app on your Mac, as you. macOS asks once for Accessibility permission.</p></details>
+      <details><summary>Why does macOS block it at first?</summary><p>Perch is not notarized yet. If you download the zip, choose Open Anyway once in System Settings, under Privacy &amp; Security. The one-line install skips this.</p></details>
+      <details><summary>Where does my data go?</summary><p>Nowhere new. Perch has no server. Your settings stay on your Mac.</p></details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">Perch, a free app for Mac.</div>
 </footer>
 
-<script type="module" src="assets/system.js"></script>
-<script type="module" src="assets/motion/motion.js"></script>
-<script type="module" src="assets/layout/layout.js"></script>
-<script type="module" src="assets/diagrams/mount.js"></script>
-<!-- the copy button: writes the install command to the clipboard, shows "Copied" for 1.6 s, then its own words again -->
 <script>
-document.querySelectorAll('[data-copy]').forEach(b => {
-  const own = b.textContent; let t;
-  b.addEventListener('click', async () => {
-    try { await navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent); } catch { return; }
-    b.style.minWidth = b.offsetWidth + 'px'; b.textContent = b.dataset.copied; clearTimeout(t); t = setTimeout(() => { b.textContent = own; }, 1600);
-  });
-});
+document.getElementById("copy").addEventListener("click",function(){
+  var b=this;navigator.clipboard.writeText(document.getElementById("cmd").textContent).then(function(){
+    b.textContent="Copied";setTimeout(function(){b.textContent="Copy"},1500)})});
 </script>
 </body>
 </html>
