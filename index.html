@@ -12,6 +12,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#070709">
 <meta name="color-scheme" content="dark">
+<script>document.documentElement.classList.add("js")</script>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="preload" href="fonts/OpenRunde-Semibold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/OpenRunde-Regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -24,7 +25,9 @@
   --bg:#070709;--card:#121215;--chip:#1e1e23;--line:#2a2a31;
   --text:#fff;--soft:#a0a0ac;--dim:#6c6c78;
   --green:#5fbf77;--amber:#f0b93c;--red:#ea5f57;
-  --night:linear-gradient(180deg,#3b4150 0%,#262a34 58%,#14151a 100%);
+  --night:linear-gradient(180deg,#101014 0%,#0d0d10 100%);
+  --ease-out:cubic-bezier(.23,1,.32,1);--ease-in-out:cubic-bezier(.77,0,.175,1);
+  --g:95,191,119;--a:240,185,60;--r:234,95,87;
   --lift:0 1px 2px rgba(0,0,0,.3),0 3px 3px rgba(0,0,0,.25),0 6px 4px rgba(0,0,0,.15);
 }
 *{box-sizing:border-box;margin:0}
@@ -59,7 +62,14 @@ b,strong{font-weight:600;color:var(--text)}
   radial-gradient(.09rem .09rem at 66% 57%,#fff 50%,transparent 51%),
   radial-gradient(.125rem .125rem at 94% 20%,var(--green) 50%,transparent 51%),
   radial-gradient(.09rem .09rem at 36% 70%,#fff 50%,transparent 51%)}
-.band>*{position:relative}
+.band::after{content:"";position:absolute;left:-10%;right:-10%;bottom:-22%;height:95%;pointer-events:none;filter:blur(3rem);background:
+  radial-gradient(34% 60% at 22% 70%,rgba(var(--g),.8),transparent 70%),
+  radial-gradient(34% 70% at 50% 80%,rgba(var(--a),.7),transparent 70%),
+  radial-gradient(34% 60% at 78% 70%,rgba(var(--r),.8),transparent 70%);
+  animation:drift 16s var(--ease-in-out) infinite alternate}
+@keyframes drift{from{transform:translate3d(-4%,2%,0) scale(1)}to{transform:translate3d(4%,-3%,0) scale(1.08)}}
+.band{box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.band>*{position:relative;z-index:1}
 
 /* nav */
 .nav{display:flex;align-items:center;justify-content:space-between;padding:.5rem .5rem .5rem 1.25rem}
@@ -75,6 +85,12 @@ b,strong{font-weight:600;color:var(--text)}
 h1{font-size:5rem;font-weight:600;line-height:.9;letter-spacing:-.04em;text-wrap:balance}
 .sub{margin:1.75rem auto 0;max-width:30rem;font-size:1.125rem;line-height:1.4;color:rgba(255,255,255,.8)}
 .hero .btn{margin-top:1.75rem}
+@keyframes rise{from{opacity:0;transform:translateY(1.25rem)}to{opacity:1;transform:none}}
+@keyframes lift{from{opacity:0;transform:translateY(4rem) scale(.97)}to{opacity:1;transform:none}}
+.hero h1,.hero .sub,.hero .btn{animation:rise .8s var(--ease-out) both}
+.hero .sub{animation-delay:.08s}.hero .btn{animation-delay:.16s}
+.hero .peek{animation:lift 1.1s var(--ease-out) .25s both}
+h1 em{font-style:normal;color:rgba(255,255,255,.55)}
 .peek{margin:4.5rem auto 0;width:42.5rem;max-width:100%;height:21rem;overflow:hidden;border-radius:1.25rem 1.25rem 0 0;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 -1.5rem 5rem rgba(0,0,0,.35)}
 
 /* sections */
@@ -98,6 +114,59 @@ h2{font-size:2.75rem;font-weight:600;line-height:1.1;letter-spacing:-.04em;text-
 .vis.fade img{-webkit-mask-image:linear-gradient(90deg,#000 70%,transparent);mask-image:linear-gradient(90deg,#000 70%,transparent)}
 .big p{color:var(--soft);max-width:26rem}
 .big .btn{align-self:flex-start}
+
+/* value strip */
+.vals{display:grid;grid-template-columns:repeat(3,1fr);gap:2.25rem;text-align:center}
+.vals b{display:block;font-size:6rem;font-weight:600;line-height:1;letter-spacing:-.05em}
+.vals span{display:block;margin-top:.5rem;color:var(--soft);font-size:1.0625rem}
+.cg{color:rgb(var(--g))}.ca{color:rgb(var(--a))}.cr{color:rgb(var(--r))}
+
+/* color tints */
+.tint{position:relative;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.tint::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;background:radial-gradient(70% 60% at 85% 0%,rgba(var(--c),.3),transparent 70%);transition:opacity .3s ease}
+.tint>*{position:relative}
+.tg{--c:var(--g)}.ta{--c:var(--a)}.tr{--c:var(--r)}
+.tint .tag svg,.tint .ico svg{color:rgb(var(--c))}
+.vis img{transition:transform .35s var(--ease-out)}
+@media (hover:hover) and (pointer:fine){
+  .tint:hover::before{opacity:1}
+  .big:hover .vis img{transform:translateY(-.25rem) scale(1.015)}
+}
+
+/* live demo: one pull request going from red to merged */
+.demo{position:relative;max-width:52rem;margin:2.5rem auto 0;padding:2.5rem;border-radius:2.5rem;background:var(--card);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.glow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 120% at 50% 120%,rgba(var(--c),.4),transparent 70%)}
+.row{position:relative;display:flex;align-items:center;gap:1rem;padding:1.125rem 1.25rem;border-radius:1.125rem;background:#2b2b2e;box-shadow:0 1.5rem 3rem rgba(0,0,0,.45);text-align:left}
+.st{position:relative;flex:none;width:1.125rem;height:1.125rem}
+.st i{position:absolute;inset:0;border-radius:50%}
+.rt{flex:1;min-width:0}
+.rt strong{display:block;font-size:1.0625rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt strong span{color:var(--soft);font-weight:500;margin-right:.375rem}
+.why{position:relative;display:block;height:1.4rem;font-size:.9375rem;color:var(--soft)}
+.why span{position:absolute;left:0;top:0;white-space:nowrap}
+.rounds{display:flex;gap:.625rem;align-items:center}
+.rounds i{width:.875rem;height:.875rem;border-radius:50%}
+.act{position:relative;flex:none;width:6.5rem;height:2.25rem}
+.act span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.375rem;border-radius:6.25rem;font-size:.9375rem;font-weight:600}
+.act .mg{background:#4c9c62;color:#fff}
+.act .md{color:rgb(var(--g))}
+.steps{position:relative;display:flex;justify-content:center;gap:2rem;margin-top:1.75rem;font-size:.9375rem;font-weight:500;color:var(--dim)}
+.steps span{display:flex;align-items:center;gap:.5rem}
+.steps i{width:.5rem;height:.5rem;border-radius:50%}
+.pR,.pA,.pG,.r2,.r3,.mg,.md{animation-duration:10s;animation-iteration-count:infinite;animation-timing-function:var(--ease-out)}
+.pR{animation-name:pR}.pA{animation-name:pA;opacity:0}.pG{animation-name:pG;opacity:0}
+.r2{animation-name:r2;opacity:0}.r3{animation-name:r3;opacity:0}.mg{animation-name:mg;opacity:0}.md{animation-name:md;opacity:0}
+@keyframes pR{0%,27%{opacity:1}31%,97%{opacity:0}100%{opacity:1}}
+@keyframes pA{0%,27%{opacity:0}31%,57%{opacity:1}61%,100%{opacity:0}}
+@keyframes pG{0%,57%{opacity:0}61%,95%{opacity:1}100%{opacity:0}}
+@keyframes r2{0%,28%{opacity:0;transform:scale(.9)}32%,95%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes r3{0%,58%{opacity:0;transform:scale(.9)}62%,95%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes mg{0%,64%{opacity:0;transform:scale(.95)}68%,81%{opacity:1;transform:none}83%{opacity:1;transform:scale(.97)}85%{opacity:1;transform:none}87%,100%{opacity:0}}
+@keyframes md{0%,86%{opacity:0;transform:scale(.95)}89%,95%{opacity:1;transform:none}100%{opacity:0}}
+
+/* scroll reveal */
+.js .rv{opacity:0;transform:translateY(1.25rem)}
+.js .rv.in{opacity:1;transform:none;transition:opacity .7s var(--ease-out) var(--d,0s),transform .7s var(--ease-out) var(--d,0s)}
 
 /* small cards */
 .three{display:grid;grid-template-columns:repeat(3,1fr);gap:2.25rem;margin-top:2.25rem}
@@ -157,7 +226,11 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #ff
   .hero{padding:3rem 1.25rem 0}
   .peek{height:14rem;margin-top:3rem}
   section{padding-top:4.5rem}
-  .two,.three,.plans{grid-template-columns:1fr;gap:1rem}
+  .two,.three,.plans,.vals{grid-template-columns:1fr;gap:1rem}
+  .vals b{font-size:4rem}
+  .demo{padding:1.25rem;border-radius:1.75rem}
+  .rounds{display:none}
+  .steps{gap:1rem;flex-wrap:wrap}
   .big,.sm{padding:1.75rem;border-radius:1.75rem}
   .big{min-height:0}
   .free{margin-top:4.5rem;padding:3.5rem 1.25rem}
@@ -166,7 +239,14 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #ff
   .end{flex-direction:column}
   .auth .ghost{display:none}
 }
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .band::after,.hero h1,.hero .sub,.hero .btn,.hero .peek{animation:none}
+  .pR,.pA,.r2,.r3,.mg,.md,.pG{animation:none}
+  .pR,.pA,.mg{opacity:0}.pG,.r2,.r3,.md{opacity:1}
+  .js .rv{opacity:1;transform:none}
+  .vis img{transition:none}
+}
 </style>
 </head>
 <body>
@@ -201,7 +281,7 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #ff
     </div>
   </header>
   <div class="hero">
-    <h1>Pull requests,<br>not browser tabs</h1>
+    <h1>Pull requests,<br><em>not browser tabs</em></h1>
     <p class="sub">See <b>every open pull request</b> in one small window. Know <b>where each review stands</b> at a glance. Start your <b>dev servers</b> with one click.</p>
     <a class="btn" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">Download for Mac</a>
     <div class="peek"><img src="img/app.webp" width="1360" height="1760" alt="The Perch window, with running dev servers on top and pull requests grouped into stacks below." fetchpriority="high"></div>
@@ -210,17 +290,42 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #ff
 
 <main>
 
+<section>
+  <div class="wrap vals">
+    <div class="rv"><b class="cr">0</b><span>browser tabs to open</span></div>
+    <div class="rv"><b class="ca">3</b><span>colors to read</span></div>
+    <div class="rv"><b class="cg">1</b><span>click to merge</span></div>
+  </div>
+</section>
+
+<section id="story">
+  <div class="wrap">
+    <h2 class="rv">Watch a pull request <span class="tok" aria-hidden="true"><i class="r"></i><i class="a"></i><i class="g"></i></span><br>go from red to merged</h2>
+    <div class="demo rv" role="img" aria-label="A pull request row. Its dot turns from red to amber to green, a Merge button appears, and it is merged.">
+      <span class="glow pR" style="--c:var(--r)"></span><span class="glow pA" style="--c:var(--a)"></span><span class="glow pG" style="--c:var(--g)"></span>
+      <div class="row" aria-hidden="true">
+        <span class="st"><i class="r pR"></i><i class="a pA"></i><i class="g pG"></i></span>
+        <span class="rt"><strong><span>#415</span>Show sync state in the toolbar</strong>
+          <span class="why"><span class="pR">Add a test for the retry path</span><span class="pA">Reviewer signs off on the size</span><span class="pG">Approved</span></span></span>
+        <span class="rounds"><i class="r" style="opacity:.6"></i><i class="a r2"></i><i class="g r3"></i></span>
+        <span class="act"><span class="mg">Merge</span><span class="md">Merged</span></span>
+      </div>
+      <div class="steps" aria-hidden="true"><span><i class="r"></i>Changes asked</span><span><i class="a"></i>One thing left</span><span><i class="g"></i>Ready to merge</span></div>
+    </div>
+  </div>
+</section>
+
 <section id="pulls">
   <div class="wrap">
-    <h2>Your whole day <span class="tok" aria-hidden="true"><i class="g"></i><i class="a"></i><i class="r"></i></span> in<br>one small window</h2>
+    <h2 class="rv">Your whole day <span class="tok" aria-hidden="true"><i class="g"></i><i class="a"></i><i class="r"></i></span> in<br>one small window</h2>
     <div class="two">
-      <article class="big">
+      <article class="big tint tg rv">
         <span class="tag"><svg><use href="#i-pr"/></svg>Pull requests</span>
         <h3>Every open pull request, in merge order</h3>
         <div class="vis fade"><img src="img/stack.webp" width="776" height="504" alt="A stack of four pull requests shown as numbered steps, two green, one amber and one red." loading="lazy"></div>
         <a class="btn dark" href="#reviews">About reviews <svg><use href="#i-arrow"/></svg></a>
       </article>
-      <article class="big">
+      <article class="big tint ta rv">
         <span class="tag"><svg><use href="#i-play"/></svg>Local runs</span>
         <h3>Dev servers from any folder, one click away</h3>
         <div class="vis"><img src="img/runs.webp" width="644" height="232" alt="A project folder with three running dev servers, each with its branch, port and a stop button." loading="lazy"></div>
@@ -232,15 +337,15 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #ff
 
 <section id="reviews">
   <div class="wrap">
-    <h2>Reviews <span class="tok" aria-hidden="true"><svg><use href="#i-dots"/></svg></span> have never<br>been easier to follow</h2>
+    <h2 class="rv">Reviews <span class="tok" aria-hidden="true"><svg><use href="#i-dots"/></svg></span> have never<br>been easier to follow</h2>
     <div class="two">
-      <article class="big">
+      <article class="big tint tr rv">
         <span class="tag"><svg><use href="#i-dots"/></svg>Review rounds</span>
         <h3>Each review round is one dot</h3>
         <div class="vis"><img src="img/rounds.webp" width="536" height="436" alt="Rows of small dots, one per review round, with how long ago each happened." loading="lazy" style="width:19rem"></div>
         <p><b>Read the history left to right.</b> Oldest round first, with how long ago it happened. A ring means you pushed and it needs a new look.</p>
       </article>
-      <article class="big">
+      <article class="big tint tg rv">
         <span class="tag"><svg><use href="#i-click"/></svg>One click</span>
         <h3>The next step is always a button</h3>
         <div class="vis"><img src="img/acts.webp" width="536" height="264" alt="Three buttons next to pull requests: Merge, Fix clash and Send for review." loading="lazy" style="width:19rem"></div>
@@ -248,47 +353,47 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #ff
       </article>
     </div>
     <div class="three">
-      <div class="sm"><span class="ico"><i class="g"></i></span><h4>Green means merge</h4><p>Approved and ready. In a stack, Perch shows which one goes first.</p></div>
-      <div class="sm"><span class="ico"><i class="a"></i></span><h4>Amber means almost</h4><p>The reviewer has one thing left to decide. You see what it is in a few words.</p></div>
-      <div class="sm"><span class="ico"><i class="r"></i></span><h4>Red means fix</h4><p>Changes were asked for. The request sits right under the title.</p></div>
+      <div class="sm tint tg rv"><span class="ico"><i class="g"></i></span><h4>Green means merge</h4><p>Approved and ready. In a stack, Perch shows which one goes first.</p></div>
+      <div class="sm tint ta rv"><span class="ico"><i class="a"></i></span><h4>Amber means almost</h4><p>The reviewer has one thing left to decide. You see what it is in a few words.</p></div>
+      <div class="sm tint tr rv"><span class="ico"><i class="r"></i></span><h4>Red means fix</h4><p>Changes were asked for. The request sits right under the title.</p></div>
     </div>
   </div>
 </section>
 
 <section id="tools">
   <div class="wrap">
-    <h2>Works with the tools<br>you already use</h2>
+    <h2 class="rv">Works with the tools<br>you already use</h2>
     <p class="lede">Perch has nothing to set up on a server. It talks through what is <b>already on your Mac</b>.</p>
     <div class="three">
-      <div class="sm"><span class="ico"><svg><use href="#i-term"/></svg></span><h4>GitHub CLI</h4><p>Reads your pull requests and merges them, signed in as you.</p></div>
-      <div class="sm"><span class="ico"><svg><use href="#i-chat"/></svg></span><h4>Claude Code</h4><p>Sums up each review in a few words and names your groups. Optional.</p></div>
-      <div class="sm"><span class="ico"><svg><use href="#i-plane"/></svg></span><h4>Slack</h4><p>Sends the link to your reviewer through the Slack app. Optional.</p></div>
+      <div class="sm tint tg rv"><span class="ico"><svg><use href="#i-term"/></svg></span><h4>GitHub CLI</h4><p>Reads your pull requests and merges them, signed in as you.</p></div>
+      <div class="sm tint ta rv"><span class="ico"><svg><use href="#i-chat"/></svg></span><h4>Claude Code</h4><p>Sums up each review in a few words and names your groups. Optional.</p></div>
+      <div class="sm tint tr rv"><span class="ico"><svg><use href="#i-plane"/></svg></span><h4>Slack</h4><p>Sends the link to your reviewer through the Slack app. Optional.</p></div>
     </div>
   </div>
 </section>
 
 <section id="safe">
   <div class="wrap">
-    <h2>Your data stays yours</h2>
+    <h2 class="rv">Your data stays yours</h2>
     <div class="three">
-      <div class="sm"><span class="ico"><svg><use href="#i-user"/></svg></span><h4>No account</h4><p>Nothing to sign up for. Open the app, name your repository, done.</p></div>
-      <div class="sm"><span class="ico"><svg><use href="#i-cloud"/></svg></span><h4>No server</h4><p>Perch has no backend. Your code and reviews never pass through us.</p></div>
-      <div class="sm"><span class="ico"><svg><use href="#i-mac"/></svg></span><h4>Saved on your Mac</h4><p>Settings live in the app's preferences, and the Slack token in your Keychain.</p></div>
+      <div class="sm tint tg rv"><span class="ico"><svg><use href="#i-user"/></svg></span><h4>No account</h4><p>Nothing to sign up for. Open the app, name your repository, done.</p></div>
+      <div class="sm tint ta rv"><span class="ico"><svg><use href="#i-cloud"/></svg></span><h4>No server</h4><p>Perch has no backend. Your code and reviews never pass through us.</p></div>
+      <div class="sm tint tr rv"><span class="ico"><svg><use href="#i-mac"/></svg></span><h4>Saved on your Mac</h4><p>Settings live in the app's preferences, and the Slack token in your Keychain.</p></div>
     </div>
   </div>
 </section>
 
 <div class="band free" id="free">
-  <h2>Simply free</h2>
+  <h2 class="rv">Simply free</h2>
   <div class="plans">
-    <div class="plan">
+    <div class="plan rv">
       <small>Perch for Mac</small>
       <strong>Free</strong>
       <ul><li>Every feature</li><li>macOS 14 or later</li><li>Apple silicon and Intel</li></ul>
       <a class="btn" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip"><svg><use href="#i-down"/></svg>Download</a>
       <p class="note">A 1 MB zip</p>
     </div>
-    <div class="plan">
+    <div class="plan rv">
       <small>Or from Terminal</small>
       <strong>One line</strong>
       <div class="cmd" id="cmd">curl -fsSL https://galcabinet.github.io/perch/install.sh | sh</div>
@@ -300,22 +405,22 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #ff
 
 <section id="questions">
   <div class="wrap">
-    <h2>Questions</h2>
+    <h2 class="rv">Questions</h2>
     <div class="faq">
-      <details><summary>What do I need installed?</summary><p>The GitHub CLI (gh), signed in. Claude Code and Slack are optional.</p></details>
-      <details><summary>What is Claude Code used for?</summary><p>It reads each review and sums it up in a few words, and it names your groups. Without it, the color comes from GitHub's own review state.</p></details>
-      <details><summary>How does it post to Slack?</summary><p>Through the Slack app on your Mac, as you. macOS asks once for Accessibility permission.</p></details>
-      <details><summary>Why does macOS block it at first?</summary><p>Perch is not notarized yet. If you download the zip, choose Open Anyway once in System Settings, under Privacy &amp; Security. The one-line install skips this.</p></details>
+      <details class="rv"><summary>What do I need installed?</summary><p>The GitHub CLI (gh), signed in. Claude Code and Slack are optional.</p></details>
+      <details class="rv"><summary>What is Claude Code used for?</summary><p>It reads each review and sums it up in a few words, and it names your groups. Without it, the color comes from GitHub's own review state.</p></details>
+      <details class="rv"><summary>How does it post to Slack?</summary><p>Through the Slack app on your Mac, as you. macOS asks once for Accessibility permission.</p></details>
+      <details class="rv"><summary>Why does macOS block it at first?</summary><p>Perch is not notarized yet. If you download the zip, choose Open Anyway once in System Settings, under Privacy &amp; Security. The one-line install skips this.</p></details>
     </div>
   </div>
 </section>
 
 <section class="close">
   <div class="wrap">
-    <h2>Perch stays out of your way<br>until you look at it</h2>
+    <h2 class="rv">Perch stays out of your way<br>until you look at it</h2>
     <p class="lede">It lives in your Dock and rests when hidden. <b>Glance, click, back to work.</b></p>
     <a class="btn" href="https://github.com/galcabinet/perch/releases/latest/download/Perch.zip">Download for Mac</a>
-    <img class="full" src="img/app.webp" width="1360" height="1760" alt="The full Perch window with made-up pull requests." loading="lazy">
+    <img class="full rv" src="img/app.webp" width="1360" height="1760" alt="The full Perch window with made-up pull requests." loading="lazy">
   </div>
 </section>
 
@@ -338,6 +443,15 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #ff
 document.getElementById("copy").addEventListener("click",function(){
   var b=this;navigator.clipboard.writeText(document.getElementById("cmd").textContent).then(function(){
     b.textContent="Copied";setTimeout(function(){b.textContent="Copy command"},1500)})});
+
+(function(){
+  var els=document.querySelectorAll(".rv");
+  if(!("IntersectionObserver" in window)){els.forEach(function(e){e.classList.add("in")});return}
+  var io=new IntersectionObserver(function(es){
+    var n=0;es.forEach(function(e){if(e.isIntersecting){e.target.style.setProperty("--d",(n++*0.07)+"s");e.target.classList.add("in");io.unobserve(e.target)}})
+  },{rootMargin:"0px 0px -8% 0px"});
+  els.forEach(function(e){io.observe(e)});
+})();
 </script>
 </body>
 </html>
